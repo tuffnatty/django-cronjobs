@@ -60,3 +60,9 @@ running at a time. If you need to override this behavior, you can pass the
 If you run multiple sets of cronjobs on the same file system and need the locks
 to not collide, set ``CRONJOB_LOCK_PREFIX`` to something unique in your Django
 settings.
+
+To handle multiple simultaneous runs of a locked task gracefully (that is, exit
+with exit code 0 and without an error message), pass ``--multi-run-quiet``
+option::
+
+    $ ./manage.py cron --multi-run-quiet <job_name>

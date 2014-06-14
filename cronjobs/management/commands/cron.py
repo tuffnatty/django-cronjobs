@@ -5,6 +5,8 @@ import sys
 import imp
 import tempfile
 
+from optparse import make_option
+
 from django.conf import settings
 from django.utils.importlib import import_module
 from django.core.management.base import BaseCommand
@@ -20,6 +22,13 @@ LOCK = getattr(settings, 'CRONJOB_LOCK_PREFIX', 'lock')
 class Command(BaseCommand):
     help = 'Run a script, often a cronjob'
     args = '[name args...]'
+    option_list = BaseCommand.option_list + (
+        make_option('--multi-run-quiet',
+            action='store_true',
+            dest='multi_run_quiet',
+            default=False,
+            help='Exit silently on multiple simultaneous runs'),
+        )
 
     def handle(self, *args, **opts):
         # Load up all the cron scripts.
@@ -63,6 +72,8 @@ class Command(BaseCommand):
 
                 atexit.register(register)
             except OSError:
+                if opts['multi_run_quiet']:
+                    sys.exit(0)
                 msg = ("Script run multiple times. If this isn't true, delete "
                        "`%s`." % filename)
                 log.error(msg)
